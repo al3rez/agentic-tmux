@@ -1,0 +1,55 @@
+#!/bin/bash
+# Minimal agent sidebar
+
+my_pid=$$
+tput civis
+trap "tput cnorm; exit" INT TERM EXIT
+
+get_agent() {
+    local pid="$1"
+    local path="$2"
+
+    if [[ -n "$pid" ]]; then
+        for p in $pid $(pgrep -P "$pid" 2>/dev/null); do
+            cmdline=$(ps -p "$p" -o args= 2>/dev/null | tr '[:upper:]' '[:lower:]')
+            [[ "$cmdline" == *"claude"* ]] && echo "🦀 claude" && return
+            [[ "$cmdline" == *"codex"* ]] && echo "🤖 codex" && return
+            [[ "$cmdline" == *"nvim"* ]] && echo "📝 nvim" && return
+            [[ "$cmdline" == *"vim"* ]] && echo "📝 vim" && return
+        done
+    fi
+
+    local path_lower=$(echo "$path" | tr '[:upper:]' '[:lower:]')
+    [[ "$path_lower" == *"claude"* ]] && echo "🦀 claude" && return
+    [[ "$path_lower" == *"codex"* ]] && echo "🤖 codex" && return
+
+    echo "   ─      "
+}
+
+clear
+while true; do
+    current=$(tmux display-message -p '#{pane_index}')
+    lines=()
+
+    while IFS='|' read -r idx pid path; do
+        [[ "$pid" == "$my_pid" ]] && continue
+
+        agent=$(get_agent "$pid" "$path")
+        mark=" "
+        [[ "$idx" == "$current" ]] && mark="▶"
+        lines+=("$mark $agent")
+
+        [[ ${#lines[@]} -ge 4 ]] && break
+    done <<< "$(tmux list-panes -F '#{pane_index}|#{pane_pid}|#{pane_current_path}')"
+
+    tput cup 0 0
+    for line in "${lines[@]}"; do
+        printf "%-14s\n" "$line"
+    done
+    # Clear remaining lines
+    for ((i=${#lines[@]}; i<4; i++)); do
+        printf "%-14s\n" ""
+    done
+
+    sleep 1
+done

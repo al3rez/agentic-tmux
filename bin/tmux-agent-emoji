@@ -1,0 +1,22 @@
+#!/bin/bash
+# Detect AI agent from process tree or path
+
+path="${1:-$(pwd)}"
+pane_pid="$2"
+path_lower=$(echo "$path" | tr '[:upper:]' '[:lower:]')
+
+# Check all processes in the pane's process tree
+if [[ -n "$pane_pid" ]]; then
+    all_pids="$pane_pid $(pgrep -P "$pane_pid" 2>/dev/null)"
+    for p in $all_pids; do
+        cmdline=$(ps -p "$p" -o args= 2>/dev/null | tr '[:upper:]' '[:lower:]')
+        [[ "$cmdline" == *"claude"* ]] && echo "🦀 claude" && exit 0
+        [[ "$cmdline" == *"codex"* ]] && echo "🤖 codex" && exit 0
+    done
+fi
+
+# Check path
+[[ "$path_lower" == *"claude"* ]] && echo "🦀 claude" && exit 0
+[[ "$path_lower" == *"codex"* ]] && echo "🤖 codex" && exit 0
+
+echo "📁"

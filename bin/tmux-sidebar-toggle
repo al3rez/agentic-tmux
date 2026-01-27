@@ -1,0 +1,16 @@
+#!/bin/bash
+# Toggle sidebar - opens on far left, only closes sidebar
+
+session=$(tmux display -p '#{session_id}')
+window=$(tmux display -p '#{window_id}')
+marker="/tmp/tmux-sidebar-${session}-${window}"
+
+if [ -f "$marker" ]; then
+    pane_id=$(cat "$marker")
+    tmux kill-pane -t "$pane_id" 2>/dev/null
+    rm "$marker"
+else
+    # Split full height on far left
+    new_pane=$(tmux split-window -fhbdPF '#{pane_id}' -l 16 '~/.local/bin/tmux-agent-sidebar')
+    echo "$new_pane" > "$marker"
+fi

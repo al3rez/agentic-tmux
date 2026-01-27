@@ -1,0 +1,28 @@
+#!/bin/bash
+# Generate consistent pet name for window (cached)
+
+session="$1"
+window="$2"
+cache_file="/tmp/tmux-name-${session}-${window}"
+emojis=("🐱" "🐶" "🦊" "🐼" "🐨" "🦁" "🐯" "🐸" "🐵" "🐰" "🦄" "🐙" "🦀" "🐢" "🦋" "🐝")
+
+# Get or generate name
+if [[ -f "$cache_file" ]]; then
+    cat "$cache_file"
+else
+    # Try to find petname
+    if command -v petname &>/dev/null; then
+        name=$(petname -w 2 -s "-" 2>/dev/null)
+    elif [[ -x "$HOME/Library/Python/3.9/bin/petname" ]]; then
+        name=$("$HOME/Library/Python/3.9/bin/petname" -w 2 -s "-" 2>/dev/null)
+    else
+        fallback=("cozy-panda" "swift-falcon" "calm-otter" "brave-fox" "wise-owl")
+        name="${fallback[$((RANDOM % ${#fallback[@]}))]}"
+    fi
+
+    hash=$((RANDOM % ${#emojis[@]}))
+    emoji="${emojis[$hash]}"
+    result="$emoji $name"
+    echo "$result" > "$cache_file"
+    echo "$result"
+fi
