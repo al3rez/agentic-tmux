@@ -1,0 +1,24 @@
+#!/bin/bash
+# Close sidebar -> tiled layout -> reopen sidebar
+
+session=$(tmux display -p '#{session_id}')
+window=$(tmux display -p '#{window_id}')
+marker="/tmp/tmux-sidebar-${session}-${window}"
+
+# Check if sidebar is open
+sidebar_open=false
+if [ -f "$marker" ]; then
+    sidebar_open=true
+    pane_id=$(cat "$marker")
+    tmux kill-pane -t "$pane_id" 2>/dev/null
+    rm "$marker"
+fi
+
+# Apply tiled layout
+tmux select-layout tiled
+
+# Reopen sidebar if it was open
+if $sidebar_open; then
+    new_pane=$(tmux split-window -fhbdPF '#{pane_id}' -l 16 '~/.local/bin/tmux-agent-sidebar')
+    echo "$new_pane" > "$marker"
+fi
