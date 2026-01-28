@@ -2,6 +2,8 @@
 
 Minimal tmux setup for AI agent development with Claude Code and OpenAI Codex.
 
+![Demo](demo.png)
+
 ## Features
 
 - **Agent sidebar** - Shows running agents (🦀 claude, 🤖 codex, 📝 vim/nvim)
@@ -12,7 +14,7 @@ Minimal tmux setup for AI agent development with Claude Code and OpenAI Codex.
 ## Install
 
 ```bash
-git clone https://github.com/yourusername/agentic-tmux.git
+git clone https://github.com/al3rez/agentic-tmux.git
 cd agentic-tmux
 ./install.sh
 ```
@@ -22,9 +24,11 @@ cd agentic-tmux
 | Key | Action |
 |-----|--------|
 | `prefix + e` | Toggle agent sidebar |
+| `prefix + =` | Tiled layout (equalize panes) |
 | `prefix + r` | Reload config |
 | `prefix + \|` | Split vertical |
 | `prefix + -` | Split horizontal |
+| `prefix + H/J/K/L` | Resize panes |
 | `M-h/j/k/l` | Navigate panes |
 
 ## Requirements
