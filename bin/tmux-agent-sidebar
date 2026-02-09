@@ -10,18 +10,26 @@ get_agent() {
     local path="$2"
 
     if [[ -n "$pid" ]]; then
-        for p in $pid $(pgrep -P "$pid" 2>/dev/null); do
+        # Get the process tree (pane pid + children)
+        local pids=$(pgrep -P "$pid" 2>/dev/null)
+        for p in $pid $pids; do
             cmdline=$(ps -p "$p" -o args= 2>/dev/null | tr '[:upper:]' '[:lower:]')
+            
+            # Direct commands
+            [[ "$cmdline" == *"gemini"* ]] && echo "♊ gemini" && return
             [[ "$cmdline" == *"claude"* ]] && echo "🦀 claude" && return
             [[ "$cmdline" == *"codex"* ]] && echo "🤖 codex" && return
+            [[ "$cmdline" == *"ssh"* ]] && echo "🌐 remote" && return
             [[ "$cmdline" == *"nvim"* ]] && echo "📝 nvim" && return
             [[ "$cmdline" == *"vim"* ]] && echo "📝 vim" && return
         done
     fi
 
     local path_lower=$(echo "$path" | tr '[:upper:]' '[:lower:]')
-    [[ "$path_lower" == *"claude"* ]] && echo "🦀 claude" && return
-    [[ "$path_lower" == *"codex"* ]] && echo "🤖 codex" && return
+    # Path detection as fallback
+    [[ "$path_lower" == *"/claude"* ]] && echo "🦀 claude" && return
+    [[ "$path_lower" == *"/codex"* ]] && echo "🤖 codex" && return
+    [[ "$path_lower" == *"/gemini"* ]] && echo "♊ gemini" && return
 
     echo "   ─      "
 }

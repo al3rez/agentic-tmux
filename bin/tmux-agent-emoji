@@ -10,13 +10,17 @@ if [[ -n "$pane_pid" ]]; then
     all_pids="$pane_pid $(pgrep -P "$pane_pid" 2>/dev/null)"
     for p in $all_pids; do
         cmdline=$(ps -p "$p" -o args= 2>/dev/null | tr '[:upper:]' '[:lower:]')
+        
+        [[ "$cmdline" == *"gemini"* ]] && echo "♊ gemini" && exit 0
         [[ "$cmdline" == *"claude"* ]] && echo "🦀 claude" && exit 0
         [[ "$cmdline" == *"codex"* ]] && echo "🤖 codex" && exit 0
+        [[ "$cmdline" == *"ssh"* ]] && echo "🌐 remote" && exit 0
     done
 fi
 
 # Check path
-[[ "$path_lower" == *"claude"* ]] && echo "🦀 claude" && exit 0
-[[ "$path_lower" == *"codex"* ]] && echo "🤖 codex" && exit 0
+[[ "$path_lower" == *"/claude"* ]] && echo "🦀 claude" && exit 0
+[[ "$path_lower" == *"/codex"* ]] && echo "🤖 codex" && exit 0
+[[ "$path_lower" == *"/gemini"* ]] && echo "♊ gemini" && exit 0
 
 echo "📁"
